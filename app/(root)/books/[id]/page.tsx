@@ -3,9 +3,12 @@ import { redirect } from "next/navigation";
 import BookOverview from "@/components/BookOverview";
 import { prisma } from "@/lib/database/prisma";
 import BookVideo from "@/components/BookVideo";
+import { auth } from "@/auth";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
+
+  const session = await auth()
 
   // Fetch data based on id
   const bookDetails = await prisma.book.findUnique({
@@ -19,7 +22,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <>
-      <BookOverview {...bookDetails} />
+      <BookOverview {...bookDetails} userId={session?.user.id} />
 
       <div className="book-details">
         <div className="flex-[1.5]">
