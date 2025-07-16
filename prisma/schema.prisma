@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  universityId   BigInt          @unique
+  password       String
+  universityCard String
+  emailVerified  DateTime?
+  status         Status          @default(PENDING)
+  role           Role            @default(USER)
+  image          String?
+  accounts       Account[]
+  createdAt      DateTime        @default(now())
+  lastActivity   DateTime        @updatedAt
+  BorrowRecords  BorrowRecords[]
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Book {
+  id              String          @id @default(cuid())
+  title           String
+  author          String
+  genre           String
+  rating          Int
+  coverUrl        String
+  coverColor      String
+  description     String          @db.Text
+  totalCopies     Int             @default(1)
+  availableCopies Int             @default(1)
+  summary         String
+  videoUrl        String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  BorrowRecords   BorrowRecords[]
+}
+
+model BorrowRecords {
+  id           String       @id @default(cuid())
+  borrower     User         @relation(fields: [userId], references: [id])
+  userId       String
+  borrowedBook Book         @relation(fields: [bookId], references: [id])
+  bookId       String
+  borrowDate   DateTime     @default(now())
+  dueDate      DateTime
+  returnDate   DateTime?
+  status       BorrowStatus @default(BORROWED)
+  createdAt    DateTime     @default(now())
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BorrowStatus {
+  BORROWED
+  RETURNED
+}
+
+enum Role {
+  ADMIN
+  USER
+}
