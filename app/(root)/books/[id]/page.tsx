@@ -10,7 +10,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   const session = await auth()
 
-  if(!session.user) redirect("/login")
+if (!session || !session.user) redirect("/login");
 
   // Fetch data based on id
   const bookDetails = await prisma.book.findUnique({
