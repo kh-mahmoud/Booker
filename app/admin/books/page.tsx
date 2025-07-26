@@ -9,7 +9,7 @@ import redis from "@/lib/redis";
 import { getOrSetCache } from "@/lib/utils";
 
 
-const page = () => {
+const page = async() => {
     const session = await auth();
 
   if (!session?.user.id) return redirect("/sign-in");
@@ -29,7 +29,7 @@ const page = () => {
                 <Link className='text-white' href={"/admin/books/new"}>+ Create New Book</Link>
             </Button>
          </div>
-            <BookList title={"Popular Books"} books={books} />
+        <BookList title={"Popular Books"} books={books} />
 
     </section>
   );
